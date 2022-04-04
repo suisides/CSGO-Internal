@@ -2,6 +2,8 @@
 
 extern Hack* hack;
 
+RECT rect;
+
 void DrawFilledRect(int x, int y, int w, int h, D3DCOLOR color)
 {
 	D3DRECT rect = { x,y,x + w,y + h };
@@ -18,12 +20,19 @@ void DrawLine(int x1, int y1, int x2, int y2, int thickness, D3DCOLOR color)
 
 	Line[0] = D3DXVECTOR2(x1, y1);
 	Line[1] = D3DXVECTOR2(x2, y2);
+	//hack->LineL->SetAntialias(1);	 ------->fps drops
 	hack->LineL->SetWidth(thickness);
 	hack->LineL->Draw(Line, 2, color);
 }
 
 void DrawLine(vec2 src, vec2 dst, int thickness, D3DCOLOR color)
 {
+	DrawLine(src.x, src.y, dst.x, dst.y, thickness, color);
+}
+
+void DrawLineO(vec2 src, vec2 dst, int thickness, D3DCOLOR color)
+{
+	DrawLine(src.x, src.y, dst.x, dst.y, thickness + 3, D3DCOLOR_ARGB(255, 0, 0, 0));
 	DrawLine(src.x, src.y, dst.x, dst.y, thickness, color);
 }
 
@@ -40,10 +49,10 @@ void DrawEspBox2D(vec2 top, vec2 bot, int thickness, D3DCOLOR color)
 	br.x = bot.x + height / 4;
 	bl.y = br.y = bot.y;
 
-	DrawLine(tl, tr, thickness, color);
-	DrawLine(bl, br, thickness, color);
-	DrawLine(tl, bl, thickness, color);
-	DrawLine(tr, br, thickness, color);
+	DrawLineO(tl, tr, thickness, color);
+	DrawLineO(bl, br, thickness, color);
+	DrawLineO(tl, bl, thickness, color);
+	DrawLineO(tr, br, thickness, color);
 }
 
 void DrawEspBox3D(vec3 top, vec3 bot, float a, int width, int thickness, D3DCOLOR color)
@@ -85,39 +94,83 @@ void DrawEspBox3D(vec3 top, vec3 bot, float a, int width, int thickness, D3DCOLO
 	if(W2S(b1,b1_2)&& W2S(b2, b2_2)&& W2S(b3, b3_2)&& W2S(b4, b4_2)&& W2S(t1, t1_2)&& W2S(t2, t2_2)&& W2S(t3, t3_2)&& W2S(t4, t4_2))
 	{
 		//columns
-		DrawLine(t1_2, b1_2, thickness, color);
-		DrawLine(t2_2, b2_2, thickness, color);
-		DrawLine(t3_2, b3_2, thickness, color);
-		DrawLine(t4_2, b4_2, thickness, color);
+		DrawLineO(t1_2, b1_2, thickness, color);
+		DrawLineO(t2_2, b2_2, thickness, color);
+		DrawLineO(t3_2, b3_2, thickness, color);
+		DrawLineO(t4_2, b4_2, thickness, color);
 
 		//top base
-		DrawLine(t1_2, t2_2, thickness, color);
-		DrawLine(t2_2, t3_2, thickness, color);
-		DrawLine(t3_2, t4_2, thickness, color);
-		DrawLine(t4_2, t1_2, thickness, color);
+		DrawLineO(t1_2, t2_2, thickness, color);
+		DrawLineO(t2_2, t3_2, thickness, color);
+		DrawLineO(t3_2, t4_2, thickness, color);
+		DrawLineO(t4_2, t1_2, thickness, color);
 
 		//bottom base
-		DrawLine(b1_2, b2_2, thickness, color);
-		DrawLine(b2_2, b3_2, thickness, color);
-		DrawLine(b3_2, b4_2, thickness, color);
-		DrawLine(b4_2, b1_2, thickness, color);
+		DrawLineO(b1_2, b2_2, thickness, color);
+		DrawLineO(b2_2, b3_2, thickness, color);
+		DrawLineO(b3_2, b4_2, thickness, color);
+		DrawLineO(b4_2, b1_2, thickness, color);
 
 
 	}
 
 }
 
-
-void DrawText(const char* text, float x, float y, D3DCOLOR color)
+void DrawTextC(const char* text, float x, float y, D3DCOLOR color)
 {
-	RECT rect;
-
 	if (!hack->FontF)
-		D3DXCreateFont(pDevice, 14, 0, FW_NORMAL, 1, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &hack->FontF);
+		D3DXCreateFont(pDevice, 14, 0, FW_NORMAL, 1, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Consolas", &hack->FontF);
 
 	SetRect(&rect, x + 1, y + 1, x + 1, y + 1);
-	hack->FontF-> DrawTextA(NULL, text, -1, &rect, DT_CENTER | DT_NOCLIP, D3DCOLOR_ARGB(255, 0, 0, 0));
+	hack->FontF->DrawTextA(NULL, text, -1, &rect, DT_CENTER | DT_NOCLIP, BLACK(255));
 
 	SetRect(&rect, x, y, x, y);
 	hack->FontF->DrawTextA(NULL, text, -1, &rect, DT_CENTER | DT_NOCLIP, color);
+}
+
+void DrawTextL(const char* text, float x, float y, D3DCOLOR color)
+{
+	if (!hack->FontF)
+		D3DXCreateFont(pDevice, 14, 0, FW_NORMAL, 1, false, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Consolas", &hack->FontF);
+
+	SetRect(&rect, x + 1, y + 1, x + 1, y + 1);
+	hack->FontF->DrawTextA(NULL, text, -1, &rect, DT_LEFT | DT_NOCLIP, D3DCOLOR_ARGB(255, 0, 0, 0));
+
+	SetRect(&rect, x, y, x, y);
+	hack->FontF->DrawTextA(NULL, text, -1, &rect, DT_LEFT | DT_NOCLIP, color);
+}
+
+void DrawRect(int x, int y, int w, int h, int thickness, D3DCOLOR color)
+{
+	DrawLine(x, y, x + w, y, thickness, color);//top
+	DrawLine(x+w, y, x + w, y + h, thickness, color);//right
+	DrawLine(x+w, y+h, x, y + h, thickness, color);//bottom
+	DrawLine(x, y+h, x, y, thickness, color);//left
+}
+
+void DrawRect(vec2 src, int w, int h, int thickness, D3DCOLOR color)
+{
+	DrawRect(src.x, src.y, w, h, thickness, color);
+}
+
+void DrawMenu()
+{
+	DrawFilledRect(hack->settings.menuX, hack->settings.menuY, hack->settings.menuWidth, hack->settings.menuHeight, D3DCOLOR_ARGB(255, 100, 100, 100));//menu background
+	DrawRect(hack->settings.menuX - (hack->settings.menuOutlineThickness / 2), hack->settings.menuY - (hack->settings.menuOutlineThickness / 2), hack->settings.menuWidth, hack->settings.menuHeight,hack->settings.menuOutlineThickness, D3DCOLOR_ARGB(255, 0, 0, 0));
+	for (size_t i = 0; i < std::size(hack->settings.features); i++)
+	{
+		int fX = hack->settings.menuX + hack->settings.fontPaddingX;								 //20 = font padding, 14 = font height;
+		int fY = hack->settings.menuY + ((i) * hack->settings.fontPaddingY) + ((i + 1) * hack->settings.fontHeight);
+			D3DCOLOR Fcolor;
+		
+			if (hack->settings.bFeatureStates[i])
+				Fcolor = D3DCOLOR_ARGB(255, 0, 255, 0);
+			else
+				Fcolor = D3DCOLOR_ARGB(255, 255, 0, 0);
+		DrawTextL(hack->settings.features[i], fX, fY, Fcolor);//feature name
+		if(hack->settings.selectedFeature == i)
+		{
+			DrawRect(fX - 3, fY-1, 175, hack->settings.fontHeight + 3, 3, D3DCOLOR_ARGB(255, 199, 199, 199));//select box
+		}
+	}
 }

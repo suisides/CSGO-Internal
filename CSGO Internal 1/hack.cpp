@@ -63,9 +63,9 @@ vec3 Hack::GetBonePos(Ent* ent, int bone)
 vec3 Hack::TransformVec(vec3 src, vec3 ang, float d)
 {
 	vec3 newPos;
-	newPos.x = src.x + (cosf(TORAD(ang.y) * d));
-	newPos.y = src.y + (sinf(TORAD(ang.y) * d));
-	newPos.z = src.z + (tanf(TORAD(ang.x) * d));
+	newPos.x = src.x + (cosf(TORAD(ang.y)) * d);
+	newPos.y = src.y + (sinf(TORAD(ang.y)) * d);
+	newPos.z = src.z + (tanf(TORAD(ang.x)) * d);
 	return newPos;
 }
 
