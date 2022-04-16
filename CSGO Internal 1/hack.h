@@ -1,4 +1,5 @@
 #pragma once
+#include "csgo.h"
 
 #define STR_MERGE_IMPL(a,b) a##b
 #define STR_MERGE(a,b) STR_MERGE_IMPL(a,b)
@@ -7,6 +8,7 @@
 
 #define ABS(x) ((x < 0) ? (-x) : (x))
 #define TORAD(x) ((x) * 0.01745329252)
+#define PI 3.14159265359
 #define W2S(x,y) hack->WorldToScreen(x,y)
 
 struct vec2
@@ -16,7 +18,7 @@ struct vec2
 
 struct vec3
 {
-	float x, y, z;
+	float x = 0, y = 0, z = 0;
 };
 
 struct vec4
@@ -41,7 +43,7 @@ public:
 		DEFINE_MEMBER_N(float, angEyeAnglesY, 0x117D4);
 		DEFINE_MEMBER_N(vec3, vecVelocity, 0x114);
 		DEFINE_MEMBER_N(bool, bHasHelmet, 0x117C0);
-		
+		DEFINE_MEMBER_N(vec2, vecViewOffset, 0x108);
 	};
 };
 
@@ -50,7 +52,6 @@ class EntListObj
 public:
 	struct Ent* ent;
 	char padding[12];
-
 };
 
 
@@ -58,18 +59,11 @@ class EntList
 {
 public:
 	EntListObj ents[32];
-
 };
 
 class Hack
 {
 public:
-	//offsets
-	//=========
-	uintptr_t dwEntityList = 0x4DD245C;
-	uintptr_t dwViewMatrix = 0x4DC3D74;
-	//=========
-
 	uintptr_t engine;
 	uintptr_t client;
 
@@ -87,11 +81,24 @@ public:
 
 	void Init();
 	void Update();
+	void UpdateKeystates();
+
+	bool IsLocalEnt(Ent* ent);
+
+	vec3 GetOrigin(Ent* ent);
+	vec2 GetViewOffset(Ent* ent);
+	int GetHealth(Ent* ent);
+	int GetTeam(Ent* ent);
+	float GetDistance(Ent* ent);
+	Ent* GetClosestEnemy();
+	vec3 GetClosestEnemyPos();
 
 	bool CheckValidEnt(Ent* ent);
 	bool WorldToScreen(vec3 pos, vec2& screen);
 	vec3 GetBonePos(Ent* ent, int bone);
 	vec3 TransformVec(vec3 src, vec3 ang, float d);
+
+	void AimAt(vec3 dst);
 
 	struct Settings
 	{
@@ -100,8 +107,8 @@ public:
 		int menuX = 100;
 		int menuY = 100;
 		int menuOutlineThickness = 4;
-		const char* features[9]{ "Num 1. 2D Box:","Num 2. Healthbar info:","Num 3. 3D Box:","Num 4. Text info:","Num 5. Snaplines:","Num 6. RCS Crosshair:","Num 7. Velocity ESP:","Num 8. Traceline:","Num 9. Show Teammates:" };
-		bool bFeatureStates[9] = {0,0,0,0,0,0,0,0,0};
+		const char* features[10]{ "Num 1. 2D Box:","Num 2. Healthbar info:","Num 3. 3D Box:","Num 4. Text info:","Num 5. Snaplines:","Num 6. RCS Crosshair:","Num 7. Velocity ESP:","Num 8. Traceline:","Num 9. Show Teammates:", "Aimbot(Mouse4)"};
+		bool bFeatureStates[10] = {0,0,0,0,0,0,0,0,0,0};
 		int selectedFeature = 0;
 
 		int fontPaddingX = 15;
@@ -124,6 +131,7 @@ public:
 		bool velEsp = false;//num7
 		bool headlineEsp = false;//num8
 		bool showTeammates = false;//num9
+		bool aimbot = false;//
 
 
 	}settings;

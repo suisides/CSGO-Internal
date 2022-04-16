@@ -10,13 +10,102 @@ void Hack::Init()
 {
 	client = (uintptr_t)GetModuleHandle("client.dll");
 	engine = (uintptr_t)GetModuleHandle("engine.dll");
-	entList = (EntList*)(client + dwEntityList);
+	entList = (EntList*)(client + (uintptr_t)offsets::dwEntityList);
 	localEnt = entList->ents[0].ent;
 }
 
 void Hack::Update()
 {
-	memcpy(&viewMatrix, (PBYTE*)(client + dwViewMatrix), sizeof(viewMatrix));
+	memcpy(&viewMatrix, (PBYTE*)(client + (uintptr_t)offsets::dwViewMatrix), sizeof(viewMatrix));
+}
+
+void Hack::UpdateKeystates()
+{
+	settings.box2D = settings.bFeatureStates[settings.bFeatureStates[0]];
+	settings.status2D = settings.bFeatureStates[settings.bFeatureStates[1]];
+	settings.box3D = settings.bFeatureStates[settings.bFeatureStates[2]];
+	settings.statusText = settings.bFeatureStates[settings.bFeatureStates[3]];
+	settings.snaplines = settings.bFeatureStates[settings.bFeatureStates[4]];
+	settings.rcsCrosshair = settings.bFeatureStates[settings.bFeatureStates[5]];
+	settings.velEsp = settings.bFeatureStates[settings.bFeatureStates[6]];
+	settings.headlineEsp = settings.bFeatureStates[settings.bFeatureStates[7]];
+	settings.showTeammates = settings.bFeatureStates[settings.bFeatureStates[8]];
+}
+
+vec3 Hack::GetOrigin(Ent* ent)
+{
+	return ent->vecOrigin;
+}
+
+vec2 Hack::GetViewOffset(Ent* ent)
+{
+	return ent->vecViewOffset;
+}
+
+int Hack::GetHealth(Ent* ent)
+{
+	return ent->iHealth;
+}
+
+int Hack::GetTeam(Ent* ent)
+{
+	return ent->iTeamNum;
+}
+
+float Hack::GetDistance(Ent* ent)
+{
+	//ent pos
+	vec3 entPos = ent->vecOrigin;
+
+	//self pos
+	vec3 selfPos = localEnt->vecOrigin;
+
+	float x = ABS(entPos.x - selfPos.x);
+	float y = ABS(entPos.y - selfPos.y);
+	float z = ABS(entPos.z - selfPos.z);
+
+
+	//pythagoras
+	return sqrt(x * x + y * y + z * z);
+
+}
+
+Ent* Hack::GetClosestEnemy()
+{
+	float distance = FLT_MAX;
+	Ent* closestEnemy;
+	for (size_t i = 0; i < 32; i++)
+	{
+		Ent* curEnt = entList->ents[i].ent;
+		if (!CheckValidEnt(curEnt))
+			continue;
+
+		if (GetDistance(curEnt) < distance)
+		{
+			distance = GetDistance(curEnt);
+			closestEnemy = curEnt;
+		}
+	}
+	return closestEnemy;
+}
+
+vec3 Hack::GetClosestEnemyPos()
+{
+	float distance = FLT_MAX;
+	vec3 pos;
+	for (size_t i = 0; i < 32; i++)
+	{
+		Ent* curEnt = entList->ents[i].ent;
+		if (!CheckValidEnt(curEnt))
+			continue;
+
+		if (GetDistance(curEnt) < distance)
+		{
+			distance = GetDistance(curEnt);
+			pos = curEnt->vecOrigin;
+		}
+	}
+	return pos;
 }
 
 bool Hack::CheckValidEnt(Ent* ent)
@@ -69,5 +158,22 @@ vec3 Hack::TransformVec(vec3 src, vec3 ang, float d)
 	return newPos;
 }
 
+void Hack::AimAt(vec3 dst)
+{
+	static vec3* viewAngles = (vec3*)(*(uint32_t*)(localEnt)+(offsets::dwClientState_ViewAngles));
+
+	vec3 origin = GetOrigin(localEnt);
+	vec2 viewOffset = GetViewOffset(localEnt);
+	vec3 myPos = localEnt->vecOrigin;
+
+	vec3 deltaVec = { dst.x - localEnt->vecOrigin.x,dst.y - localEnt->vecOrigin.y,dst.z - localEnt->vecOrigin.z };
+	float deltaVecLength = sqrt(deltaVec.x * deltaVec.x + deltaVec.y * deltaVec.y + deltaVec.z * deltaVec.z);
+
+	float pitch = asin(deltaVec.z / deltaVecLength) * (180 / PI);
+	float yaw = atan2(deltaVec.y, deltaVec.x) * (180 / PI);
+
+	viewAngles->x = -pitch;
+	viewAngles->y = yaw;
+}
 
 

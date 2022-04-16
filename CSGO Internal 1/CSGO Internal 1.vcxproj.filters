@@ -13,39 +13,57 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="drawing">
+      <UniqueIdentifier>{0ab97061-e620-41dc-a49b-3097c95ec2b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dx">
+      <UniqueIdentifier>{e6433cdd-6c3f-421f-9892-ae784607c652}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hook">
+      <UniqueIdentifier>{46644af4-056f-45ae-b983-c9d01c1352c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="offsets">
+      <UniqueIdentifier>{f3776513-ab5e-47a4-8e88-688c689580a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hack">
+      <UniqueIdentifier>{6d1c4bbe-557c-40cf-9581-651314de4d4c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="drawing.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>drawing</Filter>
     </ClCompile>
     <ClCompile Include="dx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="hook.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>dx</Filter>
     </ClCompile>
     <ClCompile Include="hack.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>hack</Filter>
+    </ClCompile>
+    <ClCompile Include="hook.cpp">
+      <Filter>hook</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="drawing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="dx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hook.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="drawing.h">
+      <Filter>drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="csgo.h">
+      <Filter>offsets</Filter>
+    </ClInclude>
+    <ClInclude Include="dx.h">
+      <Filter>dx</Filter>
+    </ClInclude>
     <ClInclude Include="hack.h">
-      <Filter>Header Files</Filter>
+      <Filter>hack</Filter>
+    </ClInclude>
+    <ClInclude Include="hook.h">
+      <Filter>hook</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
